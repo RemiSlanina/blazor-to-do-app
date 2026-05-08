@@ -1,0 +1,87 @@
+﻿@page "/"
+@using System.Threading.Tasks
+@using System.Text.Json
+@rendermode InteractiveServer 
+@inject IJSRuntime JS 
+
+<PageTitle>Home</PageTitle>
+
+<h1>To Do App</h1>
+
+<section class="input-section">
+    <label for="text-input">Task</label> 
+    <input @bind="taskInput" placeholder="Enter a task" type="text" name="text-input" id="text-input">
+    <button class="btn btn-outline-secondary" @onclick="AddTask">Add</button>
+</section>
+
+<h2>debugging</h2>
+<p>@taskInput | Tasks: @string.Join(", ", tasks.Select(t => t.Text))</p>
+
+<ul>
+    @foreach (TaskItem task in tasks)
+    {
+        <li>
+            <p> <span class="@(task.IsCompleted ? "completed" : "pending")"> @task.Text  </span>
+                <button class="btn btn-outline-danger" @onclick="() => DeleteTask(task)">Delete</button> 
+                <button class="btn btn-outline-success" @onclick="() => ToggleComplete(task)">Mark completed</button>
+                </p>
+        </li>
+    }
+</ul>
+
+<style>
+    .completed { color: grey; text-decoration: line-through; }
+    .pending { color: black; text-decoration: none;}
+</style>
+
+
+@code {
+    private string taskInput { get; set; } = ""; 
+    private List<TaskItem> tasks { get; set; } = new(); 
+
+    private async Task AddTask() {
+        if (!string.IsNullOrWhiteSpace(taskInput)) {
+            tasks.Add(new TaskItem { Text = taskInput, IsCompleted = false }); 
+            // TO DO save to localStorage
+            await JS.InvokeVoidAsync("localStorage.setItem", "tasks", JsonSerializer.Serialize(tasks)); 
+            taskInput = ""; 
+            StateHasChanged(); 
+        }
+    }
+
+    private async Task ToggleComplete(TaskItem task) {
+        task.IsCompleted = ! task.IsCompleted; 
+        await JS.InvokeVoidAsync("localStorage.setItem", "tasks", JsonSerializer.Serialize(tasks)); 
+        StateHasChanged(); 
+    }
+    private async Task DeleteTask(TaskItem task) {
+        // delete 
+        tasks.Remove(task); 
+        // TO DO save to localStorage
+        await JS.InvokeVoidAsync("localStorage.setItem", "tasks", JsonSerializer.Serialize(tasks)); 
+        StateHasChanged(); 
+    }
+    private class TaskItem {
+        public string Text { get; set; } = ""; 
+        public bool IsCompleted { get; set; }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) {
+           string? json = await JS.InvokeAsync<string?>("localStorage.getItem", "tasks");
+            if (json != null) {
+                try {
+                    tasks = JsonSerializer.Deserialize<List<TaskItem>>(json) ?? new(); 
+                } catch (JsonException) {
+                    tasks = new(); // new list if json is corrupted 
+                    await JS.InvokeVoidAsync("localstorage.setItem", "tasks", JsonSerializer.Serialize(tasks));
+                }
+                
+            }
+            StateHasChanged(); 
+        }
+        
+    }  
+
+}
