@@ -9,25 +9,30 @@
 <h1>To Do App</h1>
 
 <section class="input-section">
+    <p>Please enter a task below to get going.</p>
     <label for="text-input">Task</label> 
     <input @bind="taskInput" placeholder="Enter a task" type="text" name="text-input" id="text-input">
     <button class="btn btn-outline-secondary" @onclick="AddTask">Add</button>
 </section>
 
-<h2>debugging</h2>
-<p>@taskInput | Tasks: @string.Join(", ", tasks.Select(t => t.Text))</p>
-
-<ul>
+<ul class="task-list">
     @foreach (TaskItem task in tasks)
     {
-        <li>
-            <p> <span class="@(task.IsCompleted ? "completed" : "pending")"> @task.Text  </span>
-                <button class="btn btn-outline-danger" @onclick="() => DeleteTask(task)">Delete</button> 
-                <button class="btn btn-outline-success" @onclick="() => ToggleComplete(task)">Mark completed</button>
-                </p>
+        <li class="task-item">
+            <p> <span class="@(task.IsCompleted ? "completed" : "pending")"> @task.Text</span></p>
+            <div class="task-actions">
+                    <button class="btn btn-outline-danger tskbtn" @onclick="() => DeleteTask(task)">Delete</button> 
+                    <button class="btn btn-outline-dark tskbtn" @onclick="() => ToggleComplete(task)">Mark completed</button>
+                </div>
         </li>
     }
 </ul>
+
+<hr>
+<h2>debugging</h2>
+<p>@taskInput | Tasks: @string.Join(", ", tasks.Select(t => t.Text))</p>
+<hr>
+
 
 <style>
     .completed { color: grey; text-decoration: line-through; }
@@ -75,7 +80,7 @@
                     tasks = JsonSerializer.Deserialize<List<TaskItem>>(json) ?? new(); 
                 } catch (JsonException) {
                     tasks = new(); // new list if json is corrupted 
-                    await JS.InvokeVoidAsync("localstorage.setItem", "tasks", JsonSerializer.Serialize(tasks));
+                    await JS.InvokeVoidAsync("localStorage.setItem", "tasks", JsonSerializer.Serialize(tasks));
                 }
                 
             }
