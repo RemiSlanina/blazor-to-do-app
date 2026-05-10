@@ -48,8 +48,8 @@ main {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  margin: 0;
-  padding: 0;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
   border-bottom: dashed 1px gray;
 }
 
