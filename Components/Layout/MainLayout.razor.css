@@ -12,14 +12,22 @@ main {
   flex: 1;
 }
 
+::deep .output-section {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
 ::deep .progress-container {
   display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   padding: 1.1rem 0;
 }
 ::deep .progress {
   height: 1.2rem;
   width: 84%;
-  max-width: 700px;
 }
 
 ::deep .progress-bar {
@@ -40,7 +48,6 @@ main {
   list-style: none;
   padding: none;
   width: 100%;
-  max-width: 700px;
 }
 
 ::deep .task-item {
